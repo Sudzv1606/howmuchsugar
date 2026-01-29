@@ -96,6 +96,23 @@ function updateOutput() {
         return;
     }
 
+    // Special cases
+    if (value < 0) {
+        elements.spoonCount.textContent = '🤨';
+        elements.spoonEmojis.textContent = '';
+        elements.oneLiner.textContent = getOneLiner(-1);
+        elements.output.classList.remove('hidden');
+        return;
+    }
+
+    if (value === 0) {
+        elements.spoonCount.textContent = '0';
+        elements.spoonEmojis.textContent = '✨';
+        elements.oneLiner.textContent = getOneLiner(0);
+        elements.output.classList.remove('hidden');
+        return;
+    }
+
     let outputValue, tspEquivalent;
 
     if (state.isReverseMode) {
