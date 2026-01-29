@@ -125,3 +125,60 @@ function updateUnitToggle() {
         }
     });
 }
+
+// Input change handler
+elements.input.addEventListener('input', (e) => {
+    state.inputValue = e.target.value;
+    updateOutput();
+});
+
+// Stepper button (+5g or +1 spoon)
+elements.stepper.addEventListener('click', () => {
+    const current = parseFloat(state.inputValue) || 0;
+    const increment = state.isReverseMode ? 1 : 5;
+    state.inputValue = (current + increment).toString();
+    elements.input.value = state.inputValue;
+    updateOutput();
+});
+
+// Unit toggle handlers
+elements.toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        state.currentUnit = btn.dataset.unit;
+        updateUnitToggle();
+        savePreferences();
+        updateOutput();
+    });
+});
+
+// Country selector
+elements.countrySelect.addEventListener('change', (e) => {
+    state.country = e.target.value;
+    savePreferences();
+    updateOutput();
+});
+
+// Flip mode button
+elements.flipBtn.addEventListener('click', () => {
+    state.isReverseMode = !state.isReverseMode;
+
+    // Update UI for mode
+    if (state.isReverseMode) {
+        elements.input.placeholder = `Enter ${state.currentUnit}`;
+        document.querySelector('.subtitle').textContent = 'Because grams are confusing';
+    } else {
+        elements.input.placeholder = 'Enter grams';
+        document.querySelector('.subtitle').textContent = "Because '20 grams' means nothing";
+    }
+
+    // Clear and refocus
+    state.inputValue = '';
+    elements.input.value = '';
+    elements.output.classList.add('hidden');
+    elements.input.focus();
+});
+
+// Initialize
+loadPreferences();
+updateUnitToggle();
+elements.input.focus();
