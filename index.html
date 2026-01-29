@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sugar in Spoons - Because '20 grams' means nothing</title>
+    <meta property="og:title" content="Sugar in Spoons">
+    <meta property="og:description" content="See how much sugar is actually in your food. In spoons.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="gradient-bg">
+        <main class="card">
+            <h1>Sugar in Spoons <span class="emoji">🥄</span></h1>
+            <p class="subtitle">Because '20 grams' means nothing</p>
+
+            <div class="input-section">
+                <input type="number" id="sugarInput" placeholder="Enter grams" min="0" step="1">
+                <button id="stepperBtn" class="stepper">+</button>
+            </div>
+
+            <div class="toggle-section">
+                <div class="unit-toggle">
+                    <button class="toggle-btn active" data-unit="tsp">Teaspoons</button>
+                    <button class="toggle-btn" data-unit="tbsp">Tablespoons</button>
+                </div>
+            </div>
+
+            <div id="outputSection" class="output-section hidden">
+                <div class="spoon-count" id="spoonCount">5</div>
+                <div class="spoon-emojis" id="spoonEmojis">🥄🥄🥄🥄🥄</div>
+                <div class="one-liner" id="oneLiner">Your pancreas sends its regards</div>
+                <div class="who-guideline">WHO says max 6 tsp/day</div>
+            </div>
+
+            <div class="extras-section">
+                <button id="flipBtn" class="icon-btn" title="Reverse mode">↔ Flip</button>
+                <select id="countrySelect" class="country-select">
+                    <option value="us">🇺🇸 US (4.2g/tsp)</option>
+                    <option value="uk">🇬🇧 UK/AU (5g/tsp)</option>
+                </select>
+            </div>
+        </main>
+    </div>
+    <script src="one-liners.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
