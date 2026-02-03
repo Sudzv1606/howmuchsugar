@@ -499,6 +499,34 @@ body {
     .page-title {
         font-size: 24px;
     }
+
+    .about-page .about-card {
+        padding: 20px;
+    }
+
+    .about-page .about-icon {
+        font-size: 32px;
+    }
+
+    .about-page .about-card h2 {
+        font-size: 16px;
+    }
+
+    .about-page .about-card p {
+        font-size: 13px;
+    }
+
+    .about-intro p {
+        font-size: 15px;
+    }
+
+    .about-page .about-footer {
+        padding: 20px;
+    }
+
+    .about-page .about-footer p {
+        font-size: 13px;
+    }
 }
 
 /* Quick Links Buttons */
