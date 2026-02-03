@@ -715,3 +715,51 @@ body.about-page-body {
     transform: translateY(-2px);
     box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
 }
+
+/* About Page Mobile - MUST come after all other styles */
+@media (max-width: 768px) {
+    .about-page .about-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    .page-title {
+        font-size: 22px !important;
+    }
+
+    .about-page .about-card {
+        padding: 20px !important;
+    }
+
+    .about-page .about-icon {
+        font-size: 32px !important;
+        margin-bottom: 12px;
+    }
+
+    .about-page .about-card h2 {
+        font-size: 16px !important;
+    }
+
+    .about-page .about-card p {
+        font-size: 13px !important;
+    }
+
+    .about-intro p {
+        font-size: 15px !important;
+    }
+
+    .about-page .about-footer {
+        padding: 20px !important;
+    }
+
+    .about-page .about-footer p {
+        font-size: 13px !important;
+    }
+
+    .floating-coffee {
+        bottom: 12px;
+        right: 12px;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
