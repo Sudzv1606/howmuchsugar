@@ -16,13 +16,17 @@ const CONVERSION = {
 const elements = {
     input: document.getElementById('sugarInput'),
     stepper: document.getElementById('stepperBtn'),
+    subtitle: document.getElementById('subtitle'),
     output: document.getElementById('outputSection'),
+    emptyState: document.getElementById('emptyState'),
+    resultContent: document.getElementById('resultContent'),
     spoonCount: document.getElementById('spoonCount'),
     spoonEmojis: document.getElementById('spoonEmojis'),
     oneLiner: document.getElementById('oneLiner'),
     toggleBtns: document.querySelectorAll('.toggle-btn'),
     flipBtn: document.getElementById('flipBtn'),
-    countrySelect: document.getElementById('countrySelect')
+    countrySelect: document.getElementById('countrySelect'),
+    shareBtn: document.getElementById('shareBtn')
 };
 
 // Load saved preferences
@@ -73,43 +77,149 @@ function getTeaspoonEquivalent(inputValue) {
     }
 }
 
-// Generate spoon emoji string
+// Generate animated spoon emoji string
 function generateSpoonEmojis(count) {
     const maxVisible = 12;
     const displayCount = Math.min(Math.floor(count), maxVisible);
-    let emojis = '';
+
+    let html = '';
     for (let i = 0; i < displayCount; i++) {
-        emojis += '🥄';
+        html += `<span class="spoon" style="animation-delay: ${i * 0.05}s">🥄</span>`;
     }
     if (count > maxVisible) {
-        emojis += ` (+${Math.floor(count - maxVisible)} more)`;
+        html += `<span style="animation-delay: ${displayCount * 0.05}s" class="spoon"> (+${Math.floor(count - maxVisible)} more)</span>`;
     }
-    return emojis;
+    return html;
 }
+
+// Trigger confetti explosion
+function triggerConfetti() {
+    if (typeof confetti === 'undefined') return;
+
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = {
+        startVelocity: 30,
+        spread: 360,
+        ticks: 60,
+        zIndex: 1000
+    };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        // Create two bursts from opposite sides
+        confetti(Object.assign({}, defaults, {
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        }));
+        confetti(Object.assign({}, defaults, {
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        }));
+    }, 250);
+}
+
+// Generate share message
+function generateShareMessage(grams, spoons) {
+    const messages = [
+        `I just entered ${grams}g of sugar. That's ${spoons} spoons of chaos.`,
+        `Just discovered that ${grams}g of sugar = ${spoons} spoons. What have I been doing with my life?`,
+        `${grams}g of sugar later... that's ${spoons} spoons. No regrets.`,
+        `Me: enters ${grams}g\nAlso me: sees it's ${spoons} spoons\nPancreas: 👋`,
+        `That's ${grams}g for you. ${spoons} spoons for me. We're not the same.`
+    ];
+
+    // Special messages for certain amounts
+    if (grams === 69) {
+        return `I just entered 69g of sugar. That's ${spoons} spoons. Nice. 😏`;
+    }
+    if (grams === 42) {
+        return `I just entered 42g of sugar. That's ${spoons} spoons. The answer to everything.`;
+    }
+    if (grams >= 100) {
+        return `I just entered ${grams}g of sugar. That's ${spoons} spoons. I have achieved god mode. 🔥`;
+    }
+
+    return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// Share result
+async function shareResult() {
+    const grams = parseFloat(state.inputValue);
+    if (isNaN(grams)) return;
+
+    const spoons = gramsToSpoons(grams, state.currentUnit, state.country);
+    const message = generateShareMessage(grams, spoons);
+
+    const shareData = {
+        title: 'How Much Sugar?',
+        text: message,
+        url: 'https://howmuchsugar.fun'
+    };
+
+    // Try Web Share API first (mobile)
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+            return;
+        } catch (err) {
+            // Fall through to clipboard
+        }
+    }
+
+    // Fallback: Copy to clipboard
+    navigator.clipboard.writeText(message + '\n\nCheck it yourself: ' + shareData.url).then(() => {
+        elements.shareBtn.textContent = '✓ Copied!';
+        elements.shareBtn.classList.add('copied');
+        setTimeout(() => {
+            elements.shareBtn.textContent = '📤 Share this chaos';
+            elements.shareBtn.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+// Track last confetti amount (to avoid triggering multiple times)
+let lastConfettiAmount = 0;
 
 // Update output display
 function updateOutput() {
     const value = parseFloat(state.inputValue);
 
     if (isNaN(value) || state.inputValue === '') {
-        elements.output.classList.add('hidden');
+        // Show empty state
+        elements.emptyState.style.display = 'block';
+        elements.resultContent.classList.remove('active');
+        lastConfettiAmount = 0;
         return;
     }
+
+    // Hide empty state, show results
+    elements.emptyState.style.display = 'none';
+    elements.resultContent.classList.add('active');
 
     // Special cases
     if (value < 0) {
         elements.spoonCount.textContent = '🤨';
-        elements.spoonEmojis.textContent = '';
+        elements.spoonEmojis.innerHTML = '<span class="spoon">🚫</span>';
         elements.oneLiner.textContent = getOneLiner(-1);
-        elements.output.classList.remove('hidden');
         return;
     }
 
     if (value === 0) {
         elements.spoonCount.textContent = '0';
-        elements.spoonEmojis.textContent = '✨';
+        elements.spoonEmojis.innerHTML = '<span class="spoon">✨</span>';
         elements.oneLiner.textContent = getOneLiner(0);
-        elements.output.classList.remove('hidden');
         return;
     }
 
@@ -119,17 +229,23 @@ function updateOutput() {
         // Reverse mode: input spoons → output grams
         outputValue = spoonsToGrams(value, state.currentUnit, state.country);
         elements.spoonCount.textContent = `${outputValue}g`;
+        elements.spoonEmojis.innerHTML = '';
         tspEquivalent = getTeaspoonEquivalent(value);
     } else {
         // Normal mode: input grams → output spoons
         outputValue = gramsToSpoons(value, state.currentUnit, state.country);
         elements.spoonCount.textContent = outputValue;
-        elements.spoonEmojis.textContent = generateSpoonEmojis(outputValue);
+        elements.spoonEmojis.innerHTML = generateSpoonEmojis(outputValue);
         tspEquivalent = getTeaspoonEquivalent(value);
+
+        // Trigger confetti for 50g+ (only once per new high amount)
+        if (value >= 50 && Math.floor(value) !== lastConfettiAmount) {
+            lastConfettiAmount = Math.floor(value);
+            setTimeout(() => triggerConfetti(), 300);
+        }
     }
 
     elements.oneLiner.textContent = getOneLiner(tspEquivalent);
-    elements.output.classList.remove('hidden');
 }
 
 // Update unit toggle visual state
@@ -137,8 +253,10 @@ function updateUnitToggle() {
     elements.toggleBtns.forEach(btn => {
         if (btn.dataset.unit === state.currentUnit) {
             btn.classList.add('active');
+            btn.setAttribute('aria-checked', 'true');
         } else {
             btn.classList.remove('active');
+            btn.setAttribute('aria-checked', 'false');
         }
     });
 }
@@ -175,6 +293,9 @@ elements.countrySelect.addEventListener('change', (e) => {
     updateOutput();
 });
 
+// Share button
+elements.shareBtn.addEventListener('click', shareResult);
+
 // Flip mode button
 elements.flipBtn.addEventListener('click', () => {
     state.isReverseMode = !state.isReverseMode;
@@ -182,16 +303,18 @@ elements.flipBtn.addEventListener('click', () => {
     // Update UI for mode
     if (state.isReverseMode) {
         elements.input.placeholder = `Enter ${state.currentUnit}`;
-        document.querySelector('.subtitle').textContent = 'Because grams are confusing';
+        elements.subtitle.textContent = 'Because grams are confusing';
+        elements.stepper.textContent = '+ Add 1';
     } else {
         elements.input.placeholder = 'Enter grams';
-        document.querySelector('.subtitle').textContent = "Because '20 grams' means nothing";
+        elements.subtitle.textContent = "Because '20 grams' means nothing";
+        elements.stepper.textContent = '+ Add 5';
     }
 
     // Clear and refocus
     state.inputValue = '';
     elements.input.value = '';
-    elements.output.classList.add('hidden');
+    updateOutput();
     elements.input.focus();
 });
 

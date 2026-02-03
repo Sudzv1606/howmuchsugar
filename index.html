@@ -3,48 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sugar in Spoons 🥄 - Because '20 grams' means nothing</title>
-    <meta name="description" content="See how much sugar is actually in your food. Convert grams to teaspoons and tablespoons.">
-    <meta property="og:title" content="Sugar in Spoons 🥄">
-    <meta property="og:description" content="20 grams of sugar = 5 teaspoons. See it to believe it.">
+    <title>How Much Sugar? Convert Grams to Teaspoons - See Your Sugar in Spoons</title>
+    <meta name="description" content="Convert sugar grams to teaspoons and tablespoons instantly. See how much sugar is really in your food - 20 grams = 5 teaspoons. Free sugar calculator with WHO guidelines.">
+    <meta name="keywords" content="sugar converter, grams to teaspoons, how much sugar, sugar calculator, teaspoons to grams, tablespoons to grams, sugar in food, daily sugar intake, WHO sugar guidelines, grams to tbsp">
+    <meta name="author" content="How Much Sugar">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://howmuchsugar.fun/">
+
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://howmuchsugar.fun/">
+    <meta property="og:title" content="How Much Sugar? Convert Grams to Teaspoons - See Your Sugar in Spoons">
+    <meta property="og:description" content="Convert sugar grams to teaspoons instantly. 20 grams = 5 teaspoons. See how much sugar is really in your food.">
+    <meta property="og:image" content="https://howmuchsugar.fun/og-image.png">
+    <meta property="og:site_name" content="How Much Sugar">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://howmuchsugar.fun/">
+    <meta name="twitter:title" content="How Much Sugar? Convert Grams to Teaspoons">
+    <meta name="twitter:description" content="Convert sugar grams to teaspoons instantly. 20 grams = 5 teaspoons. See how much sugar is really in your food.">
+    <meta name="twitter:image" content="https://howmuchsugar.fun/twitter-card.png">
+
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥄</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥄</text></svg>">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "How Much Sugar - Sugar Converter",
+        "url": "https://howmuchsugar.fun",
+        "description": "Convert sugar grams to teaspoons and tablespoons instantly. See how much sugar is really in your food.",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Convert grams to teaspoons",
+            "Convert grams to tablespoons",
+            "Convert teaspoons to grams",
+            "Convert tablespoons to grams",
+            "US and UK measurement support",
+            "WHO daily sugar guidelines"
+        ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [{
+            "@type": "Question",
+            "name": "How many teaspoons are in 20 grams of sugar?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "20 grams of sugar equals approximately 5 teaspoons (using US measurements where 1 teaspoon = 4.2 grams)."
+            }
+        }, {
+            "@type": "Question",
+            "name": "What is the recommended daily sugar intake?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The World Health Organization (WHO) recommends a maximum of 6 teaspoons (25 grams) of added sugar per day for adults."
+            }
+        }, {
+            "@type": "Question",
+            "name": "How do I convert grams of sugar to teaspoons?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "To convert grams to teaspoons, divide the grams by 4.2 for US measurements (or 5 for UK/Australian measurements). For example, 10 grams ÷ 4.2 = 2.4 teaspoons."
+            }
+        }]
+    }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="gradient-bg">
-        <main class="card">
-            <h1>Sugar in Spoons <span class="emoji">🥄</span></h1>
-            <p class="subtitle">Because '20 grams' means nothing</p>
+    <div class="container">
+        <!-- Left Panel - Input -->
+        <div class="panel left-panel">
+            <header class="panel-header">
+                <h1>How Much Sugar? <span class="emoji">🥄</span></h1>
+                <p class="subtitle" id="subtitle">Because '20 grams' means nothing</p>
+            </header>
 
-            <div class="input-section">
-                <input type="number" id="sugarInput" placeholder="Enter grams" min="0" step="1">
-                <button id="stepperBtn" class="stepper">+</button>
-            </div>
+            <main>
+                <section class="input-section" aria-label="Sugar input">
+                    <label class="input-label" for="sugarInput">Enter amount</label>
+                    <input
+                        type="number"
+                        id="sugarInput"
+                        placeholder="Enter grams"
+                        min="0"
+                        step="1"
+                        aria-label="Enter sugar amount in grams"
+                    >
+                    <button id="stepperBtn" class="stepper" aria-label="Add 5 grams">+ Add 5</button>
+                </section>
 
-            <div class="toggle-section">
-                <div class="unit-toggle">
-                    <button class="toggle-btn active" data-unit="tsp">Teaspoons</button>
-                    <button class="toggle-btn" data-unit="tbsp">Tablespoons</button>
+                <nav class="toggle-section" aria-label="Unit selection">
+                    <label class="section-label">Display unit</label>
+                    <div class="unit-toggle" role="radiogroup" aria-label="Choose display unit">
+                        <button class="toggle-btn active" data-unit="tsp" role="radio" aria-checked="true">Teaspoons</button>
+                        <button class="toggle-btn" data-unit="tbsp" role="radio" aria-checked="false">Tablespoons</button>
+                    </div>
+                </nav>
+
+                <section class="settings-section" aria-label="Settings">
+                    <label class="section-label">Settings</label>
+                    <div class="settings-row">
+                        <button id="flipBtn" class="icon-btn" title="Reverse mode - convert spoons to grams" aria-label="Toggle reverse mode">
+                            ↔ Flip mode
+                        </button>
+                        <select id="countrySelect" class="country-select" aria-label="Select measurement country">
+                            <option value="us">🇺🇸 US (4.2g/tsp)</option>
+                            <option value="uk">🇬🇧 UK/AU (5g/tsp)</option>
+                        </select>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Right Panel - Output -->
+        <div class="panel right-panel">
+            <header class="panel-header">
+                <h2>Your Sugar</h2>
+            </header>
+
+            <div id="outputSection" class="output-section" role="region" aria-live="polite" aria-atomic="true">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon" role="img" aria-label="Spoon emoji">🥄</div>
+                    <p>Enter an amount to see your sugar in spoons</p>
                 </div>
-            </div>
 
-            <div id="outputSection" class="output-section hidden">
-                <div class="spoon-count" id="spoonCount">5</div>
-                <div class="spoon-emojis" id="spoonEmojis">🥄🥄🥄🥄🥄</div>
-                <div class="one-liner" id="oneLiner">Your pancreas sends its regards</div>
-                <div class="who-guideline">WHO says max 6 tsp/day</div>
+                <article class="result-content" id="resultContent">
+                    <div class="spoon-count" id="spoonCount" aria-live="polite">5</div>
+                    <div class="spoon-emojis" id="spoonEmojis" role="img" aria-label="Spoon emojis">🥄🥄🥄🥄🥄</div>
+                    <p class="one-liner" id="oneLiner">Your pancreas sends its regards</p>
+                    <button id="shareBtn" class="share-btn" title="Share your sugar">
+                        📤 Share this chaos
+                    </button>
+                    <footer class="who-guideline">
+                        <small>WHO says max 6 tsp/day (25g)</small>
+                    </footer>
+                </article>
             </div>
-
-            <div class="extras-section">
-                <button id="flipBtn" class="icon-btn" title="Reverse mode">↔ Flip</button>
-                <select id="countrySelect" class="country-select">
-                    <option value="us">🇺🇸 US (4.2g/tsp)</option>
-                    <option value="uk">🇬🇧 UK/AU (5g/tsp)</option>
-                </select>
-            </div>
-        </main>
+        </div>
     </div>
+
     <script src="one-liners.js"></script>
     <script src="app.js"></script>
 </body>
