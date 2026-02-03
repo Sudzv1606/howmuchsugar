@@ -6,7 +6,12 @@
       "Bash(git commit:*)",
       "Bash(dir)",
       "Bash(node:*)",
-      "Bash(start:*)"
+      "Bash(start:*)",
+      "Bash(npx serve:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)"
     ]
   }
 }
