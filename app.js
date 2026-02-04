@@ -44,8 +44,307 @@ const elements = {
     countrySelect: document.getElementById('countrySelect'),
     shareBtn: document.getElementById('shareBtn'),
     likeBtn: document.getElementById('likeBtn'),
-    likeCount: document.getElementById('likeCount')
+    likeCount: document.getElementById('likeCount'),
+    dailyTip: document.getElementById('dailyTip'),
+    tipText: document.getElementById('tipText'),
+    tipDismiss: document.getElementById('tipDismiss'),
+    tipNext: document.getElementById('tipNext'),
+    notifyBtn: document.getElementById('notifyBtn')
 };
+
+// ===== SUGAR TIPS =====
+const sugarTips = [
+    "A can of Coca-Cola has 39g of sugar = 9+ teaspoons!",
+    "Your 'healthy' granola might have 8 teaspoons of sugar per serving.",
+    "A Starbucks Frappuccino can have 50g+ sugar = 12 teaspoons!",
+    "Fruit juice has as much sugar as soda. Eat the fruit instead!",
+    "A 'sugar-free' label might mean artificial sweeteners, not healthy.",
+    "WHO recommends max 6 teaspoons (25g) of added sugar per day.",
+    "A single glazed donut has about 10g of sugar = 2+ teaspoons.",
+    "Ketchup is 25% sugar. A tablespoon has 1 teaspoon of sugar!",
+    'Yogurt, especially flavored, can have 15g+ sugar per serving.',
+    "A mango smoothie might have 50g+ sugar from fruit alone.",
+    "Barbecue sauce is often 50% sugar by weight.",
+    "A serving of dried fruit has much more sugar than fresh fruit.",
+    'Sports drinks are designed for athletes, not everyday hydration.',
+    "A bowl of fruit-flavored cereal may have 10g+ sugar per serving.",
+    "Apple juice has more sugar than a soda in many cases.",
+    "Pasta sauce can hide 10g+ sugar per serving.",
+    "Energy drinks often have 50g+ sugar = 12 teaspoons!",
+    "Frozen yogurt has just as much sugar as regular ice cream.",
+    "A slice of cake can have 30g+ sugar = 7+ teaspoons.",
+    "Flavored oatmeal packets have 12g+ sugar = 3 teaspoons.",
+    "A mocha latte has 20g+ sugar = 5 teaspoons.",
+    "Protein bars can have 15g+ sugar - check the label!",
+    "Sweet tea has 20g+ sugar per glass.",
+    "A margarita has 30g+ sugar = 7+ teaspoons.",
+    "Pancake syrup is almost pure sugar - 1/4 cup = 12 teaspoons!",
+    "A chocolate chip muffin has 20g+ sugar = 5 teaspoons.",
+    "Vitamin water is just sugar water with 30g+ per bottle.",
+    "A breakfast pastry has 15g+ sugar = 3+ teaspoons.",
+    "Honey is 82% sugar - healthier, but still sugar!",
+    "Agave syrup has more fructose than high fructose corn syrup.",
+    "Maple syrup is 67% sugar - use sparingly!",
+    "A serving of teriyaki sauce has 10g+ sugar.",
+    "Smoothie bowls can have 50g+ sugar from toppings alone.",
+    "A chocolate croissant has 10g+ sugar.",
+    "Sweetened almond milk has 15g+ sugar per cup.",
+    "Frozen waffles have 5g+ sugar each.",
+    "Cocktail mixers are often 90% sugar.",
+    "A serving of cranberry juice has 30g+ sugar.",
+    "Iced coffee drinks can have 25g+ sugar.",
+    "Bubble tea bobs are cooked in sugar syrup - 30g+ per drink!",
+    "A slice of pie has 30g+ sugar = 7+ teaspoons.",
+    "Whipped cream has 3g sugar per 2 tablespoons.",
+    "Canned fruit in syrup has double the sugar of fresh.",
+    "A glass of orange juice has 20g+ sugar.",
+    "Sweet chili sauce has 10g+ sugar per tablespoon.",
+    "Hoisin sauce is 25% sugar.",
+    "A fruit roll-up has 10g+ sugar.",
+    "Chocolate milk has 25g+ sugar per cup.",
+    "A cronut has 20g+ sugar.",
+    "Gatorade has 34g sugar per bottle.",
+    "A blizzard treat can have 80g+ sugar = 19 teaspoons!",
+    "Red Bull has 27g sugar = 6+ teaspoons.",
+    "A PSL has 50g+ sugar before whipped cream!",
+    "Sweet pickle relish has 10g+ sugar per serving.",
+    "Honey mustard dressing has 10g+ sugar per 2 tbsp."
+];
+
+// ===== DAILY TIP SYSTEM =====
+let currentTipIndex = 0;
+let tipDismissedThisSession = false;
+const TIPS_STORAGE_KEY = 'sugarTips_data';
+const NOTIFICATION_STORAGE_KEY = 'sugarTips_notification';
+
+// Get today's date string
+function getTodayKey() {
+    return new Date().toDateString();
+}
+
+// Get or initialize tip data
+function getTipData() {
+    const stored = localStorage.getItem(TIPS_STORAGE_KEY);
+    if (stored) {
+        return JSON.parse(stored);
+    }
+    // Initialize with random start index
+    return {
+        date: getTodayKey(),
+        index: Math.floor(Math.random() * sugarTips.length)
+    };
+}
+
+// Save tip data
+function saveTipData(data) {
+    localStorage.setItem(TIPS_STORAGE_KEY, JSON.stringify(data));
+}
+
+// Get today's tip (changes daily)
+function getTodayTip() {
+    const data = getTipData();
+
+    // If it's a new day, pick a new tip
+    if (data.date !== getTodayKey()) {
+        data.date = getTodayKey();
+        data.index = Math.floor(Math.random() * sugarTips.length);
+        saveTipData(data);
+    }
+
+    currentTipIndex = data.index;
+    return sugarTips[currentTipIndex];
+}
+
+// Show daily tip card
+function showDailyTip() {
+    const tip = getTodayTip();
+
+    // Don't show if already dismissed this session (resets on refresh)
+    if (tipDismissedThisSession) {
+        elements.dailyTip.style.display = 'none';
+        return;
+    }
+
+    elements.tipText.textContent = tip;
+    elements.dailyTip.style.display = 'block';
+
+    // Track tip view
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'daily_tip_viewed', {
+            'event_category': 'Tips',
+            'event_label': 'tip_shown'
+        });
+    }
+}
+
+// Dismiss tip (only for this session - resets on refresh)
+function dismissTip() {
+    tipDismissedThisSession = true;
+    elements.dailyTip.style.display = 'none';
+
+    // Track tip dismissed
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'daily_tip_dismissed', {
+            'event_category': 'Tips',
+            'event_label': 'tip_dismissed'
+        });
+    }
+}
+
+// Show next tip (immediately, doesn't change daily tip)
+function showNextTip() {
+    currentTipIndex = (currentTipIndex + 1) % sugarTips.length;
+    elements.tipText.textContent = sugarTips[currentTipIndex];
+
+    // Track next tip click
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'daily_tip_next', {
+            'event_category': 'Tips',
+            'event_label': 'next_tip_clicked'
+        });
+    }
+}
+
+// ===== NOTIFICATION SYSTEM =====
+let notificationPermission = 'default';
+
+// Check notification permission status
+function checkNotificationPermission() {
+    if (!('Notification' in window)) {
+        return 'unsupported';
+    }
+    return Notification.permission;
+}
+
+// Request notification permission
+async function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+        alert('Notifications are not supported in your browser.');
+        return false;
+    }
+
+    const permission = await Notification.requestPermission();
+    notificationPermission = permission;
+
+    if (permission === 'granted') {
+        updateNotifyButton(true);
+
+        // Track notification granted
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'notification_granted', {
+                'event_category': 'Notifications',
+                'event_label': 'permission_granted'
+            });
+        }
+
+        // Show first notification immediately
+        showDailyNotification();
+
+        return true;
+    } else {
+        // Track notification denied
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'notification_denied', {
+                'event_category': 'Notifications',
+                'event_label': 'permission_denied'
+            });
+        }
+        return false;
+    }
+}
+
+// Update notify button state
+function updateNotifyButton(enabled) {
+    if (enabled) {
+        elements.notifyBtn.classList.add('notify-enabled');
+        elements.notifyBtn.querySelector('.quick-text').textContent = 'Tips On 🔔';
+    } else {
+        elements.notifyBtn.classList.remove('notify-enabled');
+        elements.notifyBtn.querySelector('.quick-text').textContent = 'Daily Tips';
+    }
+}
+
+// Show daily notification (once per day)
+function showDailyNotification() {
+    if (notificationPermission !== 'granted') return;
+
+    const notifData = JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || '{}');
+    const today = getTodayKey();
+
+    // Check if already shown today
+    if (notifData.date === today) return;
+
+    // Get today's tip
+    const tip = getTodayTip();
+
+    // Show notification
+    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification('🥄 Daily Sugar Tip', {
+                body: tip,
+                icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect width=%22192%22 height=%22192%22 fill=%22%23ff6b6b%22 rx=%2242%22/><text x=%2250%25%22 y=%2255%25%22 font-size=%2296%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🥄</text></svg>',
+                badge: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 72 72%22><rect width=%2272%22 height=%2272%22 fill=%22%23ff6b6b%22 rx=%2216%22/><text x=%2250%25%22 y=%2255%25%22 font-size=%2236%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🥄</text></svg>',
+                tag: 'daily-sugar-tip',
+                requireInteraction: false,
+                silent: false
+            });
+        });
+    } else {
+        // Fallback for no service worker
+        new Notification('🥄 Daily Sugar Tip', {
+            body: tip,
+            icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect width=%22192%22 height=%22192%22 fill=%22%23ff6b6b%22 rx=%2242%22/><text x=%2250%25%22 y=%2255%25%22 font-size=%2296%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🥄</text></svg>'
+        });
+    }
+
+    // Mark as shown for today
+    localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify({ date: today }));
+
+    // Track notification sent
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'daily_notification_sent', {
+            'event_category': 'Notifications',
+            'event_label': 'notification_delivered'
+        });
+    }
+}
+
+// Initialize notifications
+function initNotifications() {
+    // Check current permission
+    notificationPermission = checkNotificationPermission();
+
+    // Update button if already granted
+    if (notificationPermission === 'granted') {
+        updateNotifyButton(true);
+        // Try to show today's notification
+        showDailyNotification();
+    }
+
+    // Handle notification button click
+    elements.notifyBtn.addEventListener('click', () => {
+        if (notificationPermission === 'granted') {
+            // Already enabled - maybe show a tip now
+            showDailyTip();
+            showDailyNotification();
+        } else {
+            requestNotificationPermission();
+        }
+    });
+
+    // Handle notification click (open app)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data === 'notification-clicked') {
+                showDailyTip();
+            }
+        });
+    }
+}
+
+// Tip event listeners
+elements.tipDismiss.addEventListener('click', dismissTip);
+elements.tipNext.addEventListener('click', showNextTip);
 
 // Load saved preferences
 function loadPreferences() {
@@ -264,6 +563,9 @@ function updateOutput() {
     }
 
     elements.oneLiner.textContent = getOneLiner(tspEquivalent);
+
+    // Show daily tip when results are displayed
+    showDailyTip();
 }
 
 // Update unit toggle visual state
@@ -447,5 +749,6 @@ elements.flipBtn.addEventListener('click', () => {
 
 // Initialize
 loadPreferences();
+initNotifications();
 updateUnitToggle();
 elements.input.focus();
