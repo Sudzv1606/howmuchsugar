@@ -1,4 +1,20 @@
-// State
+// ===== FIREBASE SETUP =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCTdGGTziQSS6vrlt_yC9t-eTtObHP_x0w",
+  authDomain: "sugarspoon-likes.firebaseapp.com",
+  databaseURL: "https://sugarspoon-likes-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sugarspoon-likes",
+  storageBucket: "sugarspoon-likes.firebasestorage.app",
+  messagingSenderId: "59391121800",
+  appId: "1:59391121800:web:06cbde187eda17a8cf423d"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const likesRef = db.ref('likes');
+
+// ===== STATE =====
 let state = {
     inputValue: '',
     currentUnit: 'tsp', // 'tsp' or 'tbsp'
@@ -26,7 +42,9 @@ const elements = {
     toggleBtns: document.querySelectorAll('.toggle-btn'),
     flipBtn: document.getElementById('flipBtn'),
     countrySelect: document.getElementById('countrySelect'),
-    shareBtn: document.getElementById('shareBtn')
+    shareBtn: document.getElementById('shareBtn'),
+    likeBtn: document.getElementById('likeBtn'),
+    likeCount: document.getElementById('likeCount')
 };
 
 // Load saved preferences
@@ -295,6 +313,115 @@ elements.countrySelect.addEventListener('change', (e) => {
 
 // Share button
 elements.shareBtn.addEventListener('click', shareResult);
+
+// Like button - with Firebase
+let hasLiked = localStorage.getItem('sugarLiked') === 'true';
+let currentLikeCount = 0;
+
+// Load initial like count and set up real-time listener
+likesRef.on('value', (snapshot) => {
+    const count = snapshot.val();
+    currentLikeCount = count === null ? 0 : count;
+    updateLikeDisplay();
+});
+
+function updateLikeDisplay() {
+    elements.likeCount.textContent = currentLikeCount;
+
+    if (hasLiked) {
+        elements.likeBtn.classList.add('liked');
+    } else {
+        elements.likeBtn.classList.remove('liked');
+    }
+}
+
+async function handleLike() {
+    // Optimistic UI update
+    if (!hasLiked) {
+        // Like: increment
+        hasLiked = true;
+        localStorage.setItem('sugarLiked', 'true');
+        likesRef.transaction((count) => (count || 0) + 1);
+    } else {
+        // Unlike: decrement
+        hasLiked = false;
+        localStorage.setItem('sugarLiked', 'false');
+        likesRef.transaction((count) => Math.max(0, (count || 0) - 1));
+    }
+    updateLikeDisplay();
+}
+
+elements.likeBtn.addEventListener('click', handleLike);
+
+// ===== SERVICE WORKER REGISTRATION =====
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('SW registered:', registration);
+            })
+            .catch(error => {
+                console.log('SW registration failed:', error);
+            });
+    });
+}
+
+// ===== PWA INSTALL TRACKING =====
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block';
+
+    // Track install prompt shown
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'pwa_install_prompt_shown', {
+            'event_category': 'PWA',
+            'event_label': 'install_prompt_shown'
+        });
+    }
+});
+
+installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+
+    if (outcome === 'accepted') {
+        // Track install accepted
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_installed', {
+                'event_category': 'PWA',
+                'event_label': 'installed'
+            });
+        }
+    } else {
+        // Track install dismissed
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_install_dismissed', {
+                'event_category': 'PWA',
+                'event_label': 'install_dismissed'
+            });
+        }
+    }
+
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+});
+
+window.addEventListener('appinstalled', () => {
+    // Track app installed event
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'pwa_appinstalled', {
+            'event_category': 'PWA',
+            'event_label': 'app_installed_success'
+        });
+    }
+    installBtn.style.display = 'none';
+});
 
 // Flip mode button
 elements.flipBtn.addEventListener('click', () => {

@@ -6,7 +6,16 @@
     <title>About - How Much Sugar? Convert Grams to Teaspoons</title>
     <meta name="description" content="Learn how the sugar converter works, why it was built, and how to use it.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥄</text></svg>">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff6b6b">
     <link rel="stylesheet" href="styles.css">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
 </head>
 <body class="about-page-body">
     <div class="page-header">

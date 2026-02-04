@@ -329,31 +329,78 @@ body {
     }
 }
 
-.share-btn {
+/* Action buttons row */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px 0 8px;
+}
+
+.share-btn,
+.like-btn {
     font-size: 14px;
     font-weight: 600;
     padding: 12px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     border-radius: 12px;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    margin: 16px 0 8px;
     animation: fadeInUp 0.5s ease-out 0.4s backwards;
 }
 
-.share-btn:hover {
+.share-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    flex: 1;
+}
+
+.like-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 90px;
+    justify-content: center;
+}
+
+.share-btn:hover,
+.like-btn:hover {
     transform: translateY(-2px);
+}
+
+.share-btn:hover {
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
-.share-btn:active {
+.like-btn:hover {
+    box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+}
+
+.share-btn:active,
+.like-btn:active {
     transform: translateY(0);
 }
 
 .share-btn.copied {
     background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.like-btn.liked {
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+}
+
+.like-btn.liked .like-icon {
+    transform: scale(1.3);
+}
+
+.like-icon {
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+
+.like-count {
+    font-size: 14px;
 }
 
 .who-guideline {
@@ -467,11 +514,19 @@ body {
         margin-bottom: 10px;
     }
 
-    .share-btn {
+    .share-btn,
+    .like-btn {
         font-size: 13px;
-        padding: 10px 16px;
-        margin: 12px 0 6px;
+        padding: 10px 14px;
         border-radius: 10px;
+    }
+
+    .like-icon {
+        font-size: 16px;
+    }
+
+    .like-count {
+        font-size: 13px;
     }
 
     .who-guideline {
@@ -572,6 +627,18 @@ body {
 
 .coffee-link:hover {
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.install-link {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.install-link:hover {
+    box-shadow: 0 8px 20px rgba(17, 153, 142, 0.3);
 }
 
 .quick-icon {
